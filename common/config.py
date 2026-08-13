@@ -9,7 +9,7 @@ load_dotenv(BASE_DIR / ".env")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", 3)) # The three seconds interval for ocr pollling.
+POLL_INTERVAL = 3 # The three seconds interval for ocr pollling.
 
 UPLOAD_DIR = BASE_DIR / "uploaded_images"
 WEAKNESS_DIR = BASE_DIR / "uploaded_weakness_images"
