@@ -1,0 +1,5 @@
+pillow
+pytesseract
+flask
+supabase
+python-dotenv
