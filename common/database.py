@@ -8,7 +8,7 @@ def scan(column_name):
     supabase
     .table("pokemon-ocr")
     .select("id, filepath, " + column_name)
-    .is_(column_name, "null")
+    .is_(column_name, "null" and column_name + " != ''")
     .limit(1)
     .execute()
   )
@@ -16,20 +16,22 @@ def scan(column_name):
   return response.data
  
 def get_card(card_id):
-  response = (supabase.table("pokemon-ocr")
-              .select("*")
-              .eq("id", card_id)
-              .single()
-              .execute()
-            )
+  response = (
+    supabase.table("pokemon-ocr")
+    .select("*")
+    .eq("id", card_id)
+    .single()
+    .execute()
+  )
 
   return response.data
 
 def update_card(card_id, data):
-  return (supabase
-          .table("pokemon-ocr")
-          .update(data)
-          .eq("id", card_id)
-          .execute()
-        )
+  return (
+    supabase
+    .table("pokemon-ocr")
+    .update(data)
+    .eq("id", card_id)
+    .execute()
+  )
 

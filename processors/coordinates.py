@@ -32,3 +32,10 @@ lore_coordinates = (
   699,
   988
 )
+
+trainer_card_name = (
+  36,
+  78,
+  557,
+  134
+)

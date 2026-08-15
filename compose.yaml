@@ -1,0 +1,53 @@
+services:
+  api:
+    build: .
+    container_name: api
+    command: python api.py
+    volumes:
+      - ./uploaded_images:/app/uploaded_images
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+
+  name_ocr:
+    build: .
+    container_name: name_ocr
+    command: python name_ocr_service.py
+    volumes:
+      - ./uploaded_images:/app/uploaded_images
+    restart: unless-stopped
+
+  lore_ocr:
+    build: .
+    container_name: lore_ocr
+    command: python lore_ocr_service.py
+    volumes:
+      - ./uploaded_images:/app/uploaded_images
+    restart: unless-stopped
+
+  moves_ocr:
+    build: .
+    container_name: moves_ocr
+    volumes:
+      - ./uploaded_images:/app/uploaded_images
+      - ./moves:/app/moves
+    command: python moves_ocr_service.py
+    restart: unless-stopped
+
+  weakness_ocr:
+    build: .
+    container_name: weakness_ocr
+    volumes:
+      - ./uploaded_images:/app/uploaded_images
+      - ./weakness:/app/weakness
+    command: python weakness_ocr_service.py
+    restart: unless-stopped
+
+  resistance_ocr:
+    build: .
+    container_name: resistance_ocr
+    volumes:
+      - ./uploaded_images:/app/uploaded_images
+      - ./resistance:/app/resistance
+    command: python resistance_ocr_service.py
+    restart: unless-stopped

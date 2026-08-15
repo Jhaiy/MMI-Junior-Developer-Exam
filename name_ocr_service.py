@@ -1,4 +1,4 @@
-from processors.coordinates import name_coordinates
+from processors.coordinates import name_coordinates, trainer_card_name
 from processors.ocr import ocr_image
 import time
 from common.database import scan, update_card
@@ -31,6 +31,9 @@ def scan_and_ocr_name():
   image_path = filepath
 
   name_text = ocr_image(image_path, name_coordinates)
+
+  if name_text is None or name_text.strip() == "":
+    name_text = ocr_image(image_path, trainer_card_name)
 
   update_card(card_id, {"name": name_text})
 
