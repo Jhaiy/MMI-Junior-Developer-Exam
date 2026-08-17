@@ -3,3 +3,4 @@ pytesseract
 flask
 supabase
 python-dotenv
+flask-cors

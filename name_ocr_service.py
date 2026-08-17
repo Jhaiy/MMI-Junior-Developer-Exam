@@ -5,6 +5,8 @@ from common.database import scan, update_card
 from common.config import POLL_INTERVAL
 
 def get_name_data():
+
+  print("Scanning for unprocessed images...")
   records = scan("name")
 
   if not records:
@@ -15,7 +17,6 @@ def get_name_data():
   
   card_id = record["id"]
   filepath = record["filepath"]
-
   return card_id, filepath
 
 def scan_and_ocr_name():

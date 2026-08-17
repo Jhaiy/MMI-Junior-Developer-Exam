@@ -8,8 +8,19 @@ def scan(column_name):
     supabase
     .table("pokemon-ocr")
     .select("id, filepath, " + column_name)
-    .is_(column_name, "null" and column_name + " != ''")
+    .is_(column_name, "null" or "")
     .limit(1)
+    .execute()
+  )
+
+  return response.data
+
+def get_card_image(card_id, category):
+  response = (
+    supabase
+    .table("pokemon-ocr")
+    .select(category)
+    .eq("id", card_id)
     .execute()
   )
 

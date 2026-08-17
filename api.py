@@ -2,9 +2,14 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 import uuid
-from common.database import supabase, get_card
+from common.database import supabase, get_card, get_card_image
+from flask_cors import CORS
+import base64
+import mimetypes
+from flask import send_file
 
 app = Flask(__name__)
+CORS(app)
 
 UPLOAD_FOLDER = "uploaded_images" # This will be the variable for the upload folder path
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -60,6 +65,22 @@ def get_card_info(card_id):
       return jsonify(card), 200
     else:
       return jsonify({"error": "Card not found"}), 404
+  except Exception as e:
+    return jsonify({"message": "Simply, card not found.", "error": str(e)}), 500
+
+@app.route("/get_card/<category>/<card_id>", methods=["GET"])
+
+def card_image(card_id, category):
+  try:
+    card = get_card_image(card_id, category)
+    if not card:
+      return jsonify({"error": "Card not found"}), 404
+
+    image_path = card[0][category]
+    return send_file(
+      image_path,
+      mimetype="image/png"
+    )
   except Exception as e:
     return jsonify({"message": "Simply, card not found.", "error": str(e)}), 500
 
