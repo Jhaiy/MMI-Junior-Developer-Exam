@@ -5,6 +5,8 @@ import time
 from common.config import POLL_INTERVAL
 
 def get_weakness_data():
+
+  print("Scanning for unprocessed images...")
   records = scan("weakness_filepath")
 
   if not records:
@@ -27,14 +29,22 @@ def crop_weakness_image():
     return None
 
   card_id, filepath = record
+  print("Found record with id: ", card_id)
 
   image_path = filepath
+  print("Cropping image: ", image_path)
 
   output_path = f"weakness/{card_id}.png"
 
   cropped_image = crop_image(image_path, weakness_coordinates, output_path)
+  print("Cropping weakness region: ", weakness_coordinates)
+  print("Saving cropped image: ", output_path)
 
-  update_card(card_id, {"weakness_filepath": output_path})
+  try:
+    update_card(card_id, {"weakness_filepath": output_path})
+    print("Updated data store: weakness_filepath = ", output_path)
+  except Exception as e:
+    print("Failed to update, retrying...")
 
   return cropped_image
 

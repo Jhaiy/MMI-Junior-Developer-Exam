@@ -29,14 +29,24 @@ def scan_and_ocr_name():
 
   card_id, filepath = record
 
+  print("Found record with id: ", card_id)
+
   image_path = filepath
 
+  print("Cropping name region ", name_coordinates)
   name_text = ocr_image(image_path, name_coordinates)
 
+  print("Extracting text with OCR...")
   if name_text is None or name_text.strip() == "":
     name_text = ocr_image(image_path, trainer_card_name)
 
-  update_card(card_id, {"name": name_text})
+  print("Extracted: ", name_text)
+
+  try:
+    update_card(card_id, {"name": name_text})
+    print("Updated data store: name = ", name_text)
+  except Exception as e:
+    print("Failed to update data, retrying...")
 
   return name_text
 

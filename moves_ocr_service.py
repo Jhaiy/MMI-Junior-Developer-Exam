@@ -5,6 +5,8 @@ from common.database import scan, update_card
 from common.config import POLL_INTERVAL
 
 def get_moves_data():
+
+  print("Scanning for unprocessed images...")
   records = scan("moves_filepath")
 
   if not records:
@@ -27,14 +29,22 @@ def crop_moves_image():
     return None
 
   card_id, filepath = record
+  print("Found record with id: ", card_id)
 
   image_path = filepath
+  print("Cropping image: ", image_path)
 
   output_path = f"moves/{card_id}.png"
 
   cropped_image = crop_image(image_path, moves_coordinates, output_path)
+  print("Cropping moves region: ", moves_coordinates)
+  print("Saving cropped image: ", output_path)
 
-  update_card(card_id, {"moves_filepath": output_path})
+  try:
+    update_card(card_id, {"moves_filepath": output_path})
+    print("Updated data store: moves_filepath = ", output_path)
+  except Exception as e:
+    print("Failed to update, retrying...")
 
   return cropped_image
 

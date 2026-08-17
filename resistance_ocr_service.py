@@ -5,6 +5,8 @@ from common.database import scan, update_card
 from common.config import POLL_INTERVAL
 
 def get_resistance_data():
+
+  print("Scanning for unprocessed images...")
   records = scan("resistance_filepath")
 
   if not records:
@@ -19,7 +21,7 @@ def get_resistance_data():
   return card_id, filepath
 
 def crop_resistance_image():
-  
+
   record = get_resistance_data()
 
   if record is None:
@@ -27,15 +29,22 @@ def crop_resistance_image():
     return None
 
   card_id, filepath = record
+  print("Found record with id: ", card_id)
 
   image_path = filepath
 
   output_path = f"resistance/{card_id}.png"
 
   cropped_image = crop_image(image_path, resistance_coordinates, output_path)
+  print("Cropping resistance region: ", resistance_coordinates)
+  print("Saving cropped image: ", output_path)
 
-  update_card(card_id, {"resistance_filepath": output_path})
-
+  try:
+    update_card(card_id, {"resistance_filepath": output_path})
+    print("Updated data store: weakness_filepath = ", output_path)
+  except Exception as e:
+    print("Failed to update, retrying...")
+  
   return cropped_image
 
 if __name__ == "__main__":

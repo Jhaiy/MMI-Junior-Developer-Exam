@@ -5,6 +5,8 @@ from common.database import scan, update_card
 from common.config import POLL_INTERVAL
 
 def get_lore_data():
+
+  print("Scanning for unprocessed images...")
   records = scan("lore")
 
   if not records:
@@ -27,12 +29,20 @@ def scan_and_ocr_lore():
     return None
 
   card_id, filepath = record
+  print("Found record with id: ", card_id)
 
   image_path = filepath
 
-  lore_text = ocr_image(image_path, lore_coordinates)
+  print("Cropping lore region: ", lore_coordinates)
 
-  update_card(card_id, {"lore": lore_text})
+  lore_text = ocr_image(image_path, lore_coordinates)
+  print("Extracting lore with OCR...")
+
+  try:
+    update_card(card_id, {"lore": lore_text})
+    print("Updated data store: lore = ", lore_text)
+  except Exception as e:
+    print("Failed to update, retrying...")
 
   return lore_text
 

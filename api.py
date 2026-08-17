@@ -2,14 +2,21 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 import uuid
-from common.database import supabase, get_card, get_card_image
+from common.database import supabase, get_card, get_card_image, fetch_card_ids
 from flask_cors import CORS
 import base64
 import mimetypes
 from flask import send_file
 
 app = Flask(__name__)
-CORS(app)
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": "http://localhost:3000"
+        }
+    }
+)
 
 UPLOAD_FOLDER = "uploaded_images" # This will be the variable for the upload folder path
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -55,6 +62,18 @@ def upload_image_to_directory_database():
 
 # Here is the code to upload the image locally, then on the code below is the supabase configuration so once the image is uploaded locally,
 # the metadata will be uploaded to supabase.
+
+@app.route("/fetch_card_ids", methods=["GET"])
+
+def get_card_id():
+  try:
+    card_id = fetch_card_ids()
+    if not card_id:
+      return jsonify({"error": "Failed to fetch cards"}), 404
+
+    return jsonify(card_id), 200
+  except Exception as e:
+    return jsonify({"message": "Failed to fetch cards, please try again later.", "error": str(e)}), 500
 
 @app.route("/get_card/<card_id>", methods=["GET"])
 

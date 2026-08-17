@@ -37,6 +37,16 @@ def get_card(card_id):
 
   return response.data
 
+def fetch_card_ids():
+  response = (
+    supabase
+    .table("pokemon-ocr")
+    .select("id")
+    .execute()
+  )
+
+  return response.data
+
 def update_card(card_id, data):
   return (
     supabase
