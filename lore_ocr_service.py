@@ -3,6 +3,24 @@ from processors.ocr import ocr_image
 import time
 from common.database import scan, update_card
 from common.config import POLL_INTERVAL
+import re
+
+def clean_lore(raw_lore):
+  if raw_lore is None:
+    return None
+
+  cleaned = raw_lore.strip()
+  cleaned = cleaned.replace("’", "'").replace("`", "'")
+  cleaned = re.sub(r"\s+", " ", cleaned)
+  cleaned = re.sub(r"^[\s\.\-–—:;,_]+", "", cleaned)
+  cleaned = re.sub(r"^(?:\d+\s+|SS\s*>\s*)", "", cleaned, flags=re.IGNORECASE)
+  cleaned = re.sub(r"(?i)\s*@\s*x\s*", " EX ", cleaned)
+  cleaned = re.sub(r"(?i)\s*@\s*ex\s*", " EX ", cleaned)
+  cleaned = re.sub(r"(?i)\bEX\b", "EX", cleaned)
+  cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+
+  return cleaned or None
+
 
 def get_lore_data():
 
@@ -38,13 +56,16 @@ def scan_and_ocr_lore():
   lore_text = ocr_image(image_path, lore_coordinates)
   print("Extracting lore with OCR...")
 
+  cleaned_lore = clean_lore(lore_text)
+  print("Extracted: ", cleaned_lore)
+
   try:
-    update_card(card_id, {"lore": lore_text})
-    print("Updated data store: lore = ", lore_text)
+    update_card(card_id, {"lore": cleaned_lore})
+    print("Updated data store: lore = ", cleaned_lore)
   except Exception as e:
     print("Failed to update, retrying...")
 
-  return lore_text
+  return cleaned_lore
 
 if __name__ == "__main__":
 
