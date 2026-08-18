@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 import uuid
+from pathlib import Path
 from common.database import supabase, get_card, get_card_image, fetch_card_ids
 from flask_cors import CORS
 import base64
@@ -9,6 +10,30 @@ import mimetypes
 from flask import send_file
 
 app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent
+ALLOWED_IMAGE_CATEGORIES = {
+    "resistance_filepath",
+    "moves_filepath",
+    "weakness_filepath",
+    "filepath",
+}
+
+
+def resolve_image_path(image_path):
+  if not image_path or not isinstance(image_path, str):
+    return None
+
+  candidate = Path(image_path)
+  if not candidate.is_absolute():
+    candidate = BASE_DIR / candidate
+
+  resolved = candidate.resolve()
+  if not resolved.exists() or not resolved.is_file():
+    return None
+
+  return resolved
+
+
 CORS(
     app,
     resources={
@@ -91,14 +116,21 @@ def get_card_info(card_id):
 
 def card_image(card_id, category):
   try:
+    if category not in ALLOWED_IMAGE_CATEGORIES:
+      return jsonify({"error": "Invalid card image category"}), 400
+
     card = get_card_image(card_id, category)
     if not card:
       return jsonify({"error": "Card not found"}), 404
 
-    image_path = card[0][category]
+    image_path = resolve_image_path(card[0].get(category))
+    if image_path is None:
+      return jsonify({"error": "Image file not found"}), 404
+
+    guessed_mime, _ = mimetypes.guess_type(str(image_path))
     return send_file(
-      image_path,
-      mimetype="image/png"
+      str(image_path),
+      mimetype=guessed_mime or "application/octet-stream"
     )
   except Exception as e:
     return jsonify({"message": "Simply, card not found.", "error": str(e)}), 500
